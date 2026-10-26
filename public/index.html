@@ -27,7 +27,16 @@
 
     <p id="message"></p>
 
-    // search vehicle
+    <h2>Search Vehicle by ID</h2>
+
+    <input id="searchId" type="number" placeholder="Vehicle ID">
+    <button id="searchButton">Search</button>
+    <button id="viewAllButton">View All</button>
+
+    <h2>Registered Vehicles</h2>
+
+    <p id="count"></p>
+    <div id="vehicleList"></div>
 
     <script>
         const API = "/api/vehicles";
@@ -65,6 +74,17 @@
                     " | Type: " + vehicle.vehicle_type +
                     " | Color: " + vehicle.color;
 
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+
+                deleteButton.onclick = async function () {
+                    if (!confirm("Delete this vehicle?")) return;
+
+                    const response = await fetch(
+                        API + "/" + vehicle.id,
+                        { method: "DELETE" }
+                    );
+
                     const data = await response.json();
                     message.textContent = data.message;
 
@@ -72,8 +92,9 @@
                 };
 
                 item.appendChild(details);
+                item.appendChild(deleteButton);
                 vehicleList.appendChild(item);
-            );
+            });
         }
 
         // register vehicle
@@ -105,6 +126,25 @@
         });
 
         // search vehicle
+        document.getElementById("searchButton").onclick =
+            async function () {
+                const id = document.getElementById("searchId").value;
+
+                if (!id) {
+                    message.textContent = "Enter a vehicle ID.";
+                    return;
+                }
+
+                const response = await fetch(API + "/" + id);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayVehicles([data]);
+                } else {
+                    displayVehicles([]);
+                    message.textContent = data.message;
+                }
+            };
 
         // display vehicles
         document.getElementById("viewAllButton").onclick = loadVehicles;

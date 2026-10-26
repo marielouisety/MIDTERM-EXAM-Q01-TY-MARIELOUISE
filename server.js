@@ -13,7 +13,16 @@ app.get("/api/vehicles", (req, res) => {
 });
 
 // search vehicle
+app.get("/api/vehicles/:id", (req, res) => {
+    const vehicles = JSON.parse(fs.readFileSync("data.json"));
+    const vehicle = vehicles.find(v => v.id == req.params.id);
 
+    if (!vehicle) {
+        return res.status(404).json({ message: "Vehicle not found" });
+    }
+
+    res.json(vehicle);
+});
 
 // register vehicle
 app.post("/api/vehicles", (req, res) => {
@@ -47,7 +56,21 @@ app.post("/api/vehicles", (req, res) => {
 });
 
 // delete vehicle
+app.delete("/api/vehicles/:id", (req, res) => {
+    const vehicles = JSON.parse(fs.readFileSync("data.json"));
+    const id = Number(req.params.id);
+    const index = vehicles.findIndex(v => v.id === id);
 
+    if (index === -1) {
+        return res.status(404).json({ message: "Vehicle not found" });
+    }
+
+    vehicles.splice(index, 1);
+
+    fs.writeFileSync("data.json", JSON.stringify(vehicles, null, 2));
+
+    res.json({ message: "Vehilce deleted successfully" });
+});
 
 app.listen(3000, () => {
     console.log("Server running at http://localhost:3000");
