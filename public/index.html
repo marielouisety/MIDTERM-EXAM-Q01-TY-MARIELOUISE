@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Campus Parking Management System</title>
+</head>
+<body>
+    <h1>Campus Parking Management System</h1>
+
+    <h2>Register Vehicle</h2>
+
+    <form id="vehicleForm">
+        <input id="plate_number" placeholder="Plate Number" required>
+        <input id="owner" placeholder="Owner" required>
+
+        <select id="vehicle_type" required>
+            <option value="">Select Vehicle Type</option>
+            <option value="Car">Car</option>
+            <option value="Motorcycle">Motorcycle</option>
+            <option value="SUV">SUV</option>
+            <option value="Van">Van</option>
+        </select>
+
+        <input id="color" placeholder="Color" required>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <p id="message"></p>
+
+    // search vehicle
+
+    <script>
+        const API = "/api/vehicles";
+
+        const form = document.getElementById("vehicleForm");
+        const message = document.getElementById("message");
+        const vehicleList = document.getElementById("vehicleList");
+        const count = document.getElementById("count");
+
+        // display
+        async function loadVehicles() {
+            const response = await fetch(API);
+            const vehicles = await response.json();
+
+            displayVehicles(vehicles);
+        }
+
+        // display vehicles
+        function displayVehicles(vehicles) {
+            vehicleList.replaceChildren();
+            count.textContent = "Total Vehicles: " + vehicles.length;
+
+            if (vehicles.length === 0) {
+                vehicleList.textContent = "No vehicles found.";
+            }
+
+            vehicles.forEach(vehicle => {
+                const item = document.createElement("div");
+
+                const details = document.createElement("p");
+                details.textContent =
+                    "ID: " + vehicle.id +
+                    " | Plate: " + vehicle.plate_number +
+                    " | Owner: " + vehicle.owner +
+                    " | Type: " + vehicle.vehicle_type +
+                    " | Color: " + vehicle.color;
+
+                    const data = await response.json();
+                    message.textContent = data.message;
+
+                    loadVehicles();
+                };
+
+                item.appendChild(details);
+                vehicleList.appendChild(item);
+            );
+        }
+
+        // register vehicle
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const vehicle = {
+                plate_number: document.getElementById("plate_number").value,
+                owner: document.getElementById("owner").value,
+                vehicle_type: document.getElementById("vehicle_type").value,
+                color: document.getElementById("color").value
+            };
+
+            const response = await fetch(API, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(vehicle)
+            });
+
+            const data = await response.json();
+            message.textContent = data.message;
+
+            if (response.ok) {
+                form.reset();
+                loadVehicles();
+            }
+        });
+
+        // search vehicle
+
+        // display vehicles
+        document.getElementById("viewAllButton").onclick = loadVehicles;
+
+        loadVehicles();
+    </script>
+</body>
+</html>
